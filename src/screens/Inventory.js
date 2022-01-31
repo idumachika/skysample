@@ -8,8 +8,6 @@ const height = Dimensions.get('screen').height
 import ProductReducer from '../redux/productReducer';
 import ImagePicker from 'react-native-image-crop-picker';
 
-import { v4 as uuidv4 } from 'uuid';
-
 
 
 
@@ -31,13 +29,16 @@ const renderItem = ({ item }) => {
 
 const Inventory = () => {
 
-
-    const [products, setProducts] = React.useState(initialData)
     const [isModalVisible, setModalVisible] = useState(false);
     const [name, setName] = React.useState('');
     const [category, setCategory] = React.useState('');
     const [purchasePrice, setPurchasePrice] = React.useState('')
     const [imageSource, setImageSource] = React.useState({});
+
+    function getRandomArbitrary(min, max) {
+        return Math.random() * (max - min) + min;
+    }
+
 
 
 
@@ -46,13 +47,23 @@ const Inventory = () => {
         products: initialData,
     });
 
-    console.log('tag', productData)
-
     const handleAddProduct = () => {
-        dispatchProductData({ type: 'ADD_ITEM', name, category, purchasePrice, imageSource, id: 4 })
+        if (name == "") {
+            alert('Name cannot be empty')
+        } else if (category == "") {
+            alert('Category cannot be empty')
+        } else if (purchasePrice == "") {
+            alert("Price cannot be empty")
+        } else {
+            dispatchProductData({ type: 'ADD_ITEM', name, category, purchasePrice, imageSource, id: getRandomArbitrary() })
+        }
+
+
         setName('')
         setCategory('')
         setPurchasePrice('')
+        setModalVisible(!isModalVisible);
+
     }
 
     const handleChangeName = (name, value) => {
@@ -95,15 +106,15 @@ const Inventory = () => {
                 </TouchableOpacity>
 
             </View>
-            {/* <View style={styles.content}> */}
-            <FlatList
-                numColumns={2}
-                data={productData.products}
-                renderItem={renderItem}
-                keyExtractor={(item) => item.id}
-            />
-
-            {/* </View> */}
+            <View style={styles.content}>
+                <FlatList
+                    // style={styles.content}
+                    numColumns={2}
+                    data={productData.products}
+                    renderItem={renderItem}
+                    keyExtractor={(item) => item.id}
+                />
+            </View>
 
             <AddModal
                 isVisible={isModalVisible}
@@ -155,10 +166,11 @@ const styles = StyleSheet.create({
     },
 
     content: {
-        // width: width,
-        // height: height,
-        // marginLeft: 12,
-        // marginBottom: 30
+        // flex: 1,
+        width: width,
+        height: height,
+        marginLeft: 12,
+
 
     },
 
@@ -168,7 +180,7 @@ const styles = StyleSheet.create({
         marginLeft: 20,
         borderRadius: 20,
         marginTop: 20,
-        elevation: 20
+        // elevation: 20,
     },
 
     wrapperFooter: {

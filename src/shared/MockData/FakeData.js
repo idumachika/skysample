@@ -14,13 +14,6 @@ const initialData = [{
     "photo": "https://i.ibb.co/4dfndL2/louis-hansel-M-d-J-Scwa-LE-unsplash.jpg",
 },
 
-{
-    "id": 3,
-    "name": "Guitar",
-    "purchasePrice": 850,
-    "type": "MUSIC_INSTRUMENT",
-    "photo": "https://i.ibb.co/4dfndL2/louis-hansel-M-d-J-Scwa-LE-unsplash.jpg",
-}
 ]
 
 export default initialData
