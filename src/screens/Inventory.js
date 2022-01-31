@@ -1,20 +1,126 @@
-import React from 'react';
-import { Text, View, StyleSheet, Dimensions } from 'react-native';
+import React, { useState } from 'react';
+import { Text, View, StyleSheet, Dimensions, TouchableOpacity, FlatList, Image } from 'react-native';
 import Feather from 'react-native-vector-icons/Feather';
-
+import AddModal from '../components/AddModal';
+import initialData from '../shared/MockData/FakeData';
 const width = Dimensions.get('screen').width;
 const height = Dimensions.get('screen').height
+import ProductReducer from '../redux/productReducer';
+import ImagePicker from 'react-native-image-crop-picker';
+
+import { v4 as uuidv4 } from 'uuid';
+
+
+
+
+const renderItem = ({ item }) => {
+    return (
+        <View style={styles.productsWrapper}>
+            <Image source={{ uri: item.photo }} style={styles.productImage} />
+            <View style={styles.wrapperFooter}>
+                <Text style={styles.productName}>{item.name}</Text>
+                <View style={styles.productsWrapper2}>
+                    <Text style={styles.purchasePrice}>{item.purchasePrice}</Text>
+                </View>
+            </View>
+
+        </View>
+    )
+
+}
 
 const Inventory = () => {
 
+
+    const [products, setProducts] = React.useState(initialData)
+    const [isModalVisible, setModalVisible] = useState(false);
+    const [name, setName] = React.useState('');
+    const [category, setCategory] = React.useState('');
+    const [purchasePrice, setPurchasePrice] = React.useState('')
+    const [imageSource, setImageSource] = React.useState({});
+
+
+
+
+    const [productData, dispatchProductData] = React.useReducer(ProductReducer, {
+        products: initialData,
+    });
+
+    console.log('tag', productData)
+
+    const handleAddProduct = () => {
+        dispatchProductData({ type: 'ADD_ITEM', name, category, purchasePrice, imageSource, id: 4 })
+        setName('')
+        setCategory('')
+        setPurchasePrice('')
+    }
+
+    const handleChangeName = (name, value) => {
+        setName(value)
+    }
+    const handleChangeCategory = (name, value) => {
+        setCategory(value)
+    }
+
+    const handleChangePrice = (name, value) => {
+        setPurchasePrice(value)
+    }
+
+    const selectImage = () => {
+        ImagePicker.openPicker({
+            //width: 300,
+            height: 400,
+            cropping: true,
+            includeBase64: true,
+            compressImageQuality: 0.4
+        }).then(image => {
+            setImageSource(image)
+
+        });
+    }
+
+
+
+    const toggleModal = () => {
+        setModalVisible(!isModalVisible);
+    };
     return (
         <View style={styles.container}>
             <View style={styles.Header}>
                 <Text style={styles.Title}>Inventory</Text>
-                <Feather name="plus-circle" color="blue" size={24}
-                    style={{ paddingRight: 20, paddingTop: 20 }}
-                />
+                <TouchableOpacity onPress={toggleModal}>
+                    <Feather name="plus-circle" color="blue" size={30}
+                        style={styles.Icon}
+                    />
+                </TouchableOpacity>
+
             </View>
+            {/* <View style={styles.content}> */}
+            <FlatList
+                numColumns={2}
+                data={productData.products}
+                renderItem={renderItem}
+                keyExtractor={(item) => item.id}
+            />
+
+            {/* </View> */}
+
+            <AddModal
+                isVisible={isModalVisible}
+                name={name}
+                category={category}
+                purchasePrice={purchasePrice}
+                toggleModal={toggleModal}
+                handleChangeName={handleChangeName}
+                handleChangeCategory={handleChangeCategory}
+                handleChangePrice={handleChangePrice}
+                selectImage={selectImage}
+                imageSource={imageSource}
+                onAdd={handleAddProduct}
+
+
+
+            />
 
         </View>)
 }
@@ -29,7 +135,7 @@ const styles = StyleSheet.create({
 
     Header: {
         width: width,
-        height: 100,
+        height: 75,
         marginTop: 45,
         justifyContent: "space-between",
         flexDirection: 'row'
@@ -41,6 +147,70 @@ const styles = StyleSheet.create({
         color: '#000',
         paddingLeft: 20,
         paddingTop: 20,
+    },
+    Category: {
+        width: width,
+        height: 80,
+        flexDirection: 'row'
+    },
+
+    content: {
+        // width: width,
+        // height: height,
+        // marginLeft: 12,
+        // marginBottom: 30
+
+    },
+
+    productsWrapper: {
+        width: 160,
+        height: 200,
+        marginLeft: 20,
+        borderRadius: 20,
+        marginTop: 20,
+        elevation: 20
+    },
+
+    wrapperFooter: {
+        width: '100%',
+        height: '40%',
+        backgroundColor: '#eaeaea',
+        position: 'absolute',
+        bottom: 0,
+        borderBottomLeftRadius: 20,
+        borderBottomRightRadius: 20
+
+
+
+    },
+    productsWrapper2: {
+        width: '100%',
+        justifyContent: 'space-between',
+        marginTop: 8
+
+    },
+    Icon: {
+        paddingRight: 20,
+        paddingTop: 20
+    },
+    purchasePrice: {
+        fontSize: 12,
+        fontWeight: 'bold',
+        color: 'black', paddingLeft: 20
+    },
+    productName: {
+        fontSize: 15,
+        fontWeight: 'bold',
+        paddingTop: 20,
+        paddingLeft: 20
+    },
+    productImage: {
+        width: '100%',
+        height: '70%',
+        borderRadius: 20,
+        position: "absolute"
     }
+
+
 })
 
